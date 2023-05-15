@@ -10,7 +10,9 @@ var running: boolean = false;
 
 export function startMatrix() {
   let current: ImageItem = getCurrentImage();
+  console.log(`current image: ${current.toJSON()}`);
   let image: any = resizeByAspectRatio(current.path);
+  console.log(`image: ${JSON.stringify(image)}`);
   matrix.brightness(current.brightness).drawBuffer(image).sync();
   running = true;
 }
