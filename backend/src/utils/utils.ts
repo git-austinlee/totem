@@ -1,4 +1,4 @@
-import * as ffmpeg from "ffmpeg";
+import ffmpeg from "ffmpeg";
 import * as fs from "node:fs";
 import path, { dirname } from "path";
 import Realm from "realm";
@@ -65,3 +65,5 @@ export function resizeByAspectRatio(path: string) {
     console.log(`resizeByAspectRatio: ${err.msg}`);
   }
 }
+
+export function resizeByPixel(path: string) {}
