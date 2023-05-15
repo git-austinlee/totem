@@ -1,44 +1,27 @@
 import { spawn } from "child_process";
 import * as ps from "ps-node";
 
-import { matrix } from "../index.js";
+import { matrix, realm } from "../index.js";
+import { ImageItem } from "../models/ImageSchema.js";
+import { resizeByAspectRatio } from "../utils/utils.js";
+import { getCurrentImage } from "./imageController.js";
 
-const platform: string = process.platform;
-let py: string = platform === "win32" ? "py" : "python3";
-const path: string = "/home/diet-pi/totem/service";
-const scriptName: string = ""; //TODO
+var running: boolean = false;
 
-export function isScriptRunning() {
-  /*
-   *  Checks if script is running in background
-   *  Returns pid if true
-   *  Returns -1 if not
-   */
-  let pid: number = -1;
-  ps.lookup({ command: py }, function (err, resultList) {
-    if (err) console.error(err);
-
-    resultList.forEach((process) => {
-      if (process) pid = process.pid;
-    });
-  });
-  return pid;
+export function startMatrix() {
+  let current: ImageItem = getCurrentImage();
+  let image: any = resizeByAspectRatio(current.path);
+  matrix.brightness(current.brightness).drawBuffer(image).sync();
+  running = true;
 }
 
-export function startScript() {
-  let pid = isScriptRunning();
-  if (pid !== -1) {
-    const python = spawn(py, [`${path}/${scriptName}`]);
-  }
+export function stopMatrix() {
+  matrix.sync();
+  running = false;
 }
 
-export function stopScript() {
-  let pid = isScriptRunning();
-  if (pid === -1) {
-    ps.kill(pid, function (err) {
-      if (err) console.error(err);
-    });
-  }
+export function isPlaying() {
+  return running;
 }
 
-export async function runScript() {}
+function loop(current: ImageItem) {}

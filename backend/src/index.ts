@@ -4,16 +4,10 @@ import express, { Express, Request, Response } from "express";
 import http from "http";
 import * as path from "path";
 import Realm from "realm";
-import {
-  GpioMapping,
-  LedMatrix,
-  MuxType,
-  RowAddressType,
-  RuntimeFlag,
-  ScanMode,
-} from "rpi-led-matrix";
+import { LedMatrix } from "rpi-led-matrix";
 
 import { ImageItem, ImageOrder } from "./models/ImageSchema.js";
+import { matrixOptions, runtimeOptions } from "./models/matrixOptions.js";
 import { imageRouter } from "./routes/imageRouter.js";
 import { scriptRouter } from "./routes/scriptRouter.js";
 import { imgsDir, initRealm } from "./utils/utils.js";
@@ -34,35 +28,7 @@ initRealm();
  * Matrix
  */
 //export const matrix = null;
-export const matrix = new LedMatrix(
-  {
-    brightness: 100,
-    chainLength: 2,
-    rows: 32,
-    cols: 64,
-    parallel: 3,
-    pwmDitherBits: 4,
-    hardwareMapping: GpioMapping.Regular,
-    limitRefreshRateHz: 144,
-    disableHardwarePulsing: false,
-    inverseColors: false,
-    ledRgbSequence: "RGB",
-    multiplexing: MuxType.Direct,
-    panelType: "",
-    pixelMapperConfig: "",
-    pwmBits: 11,
-    pwmLsbNanoseconds: 130,
-    rowAddressType: RowAddressType.Direct,
-    scanMode: ScanMode.Progressive,
-    showRefreshRate: false,
-  },
-  {
-    gpioSlowdown: 4,
-    daemon: RuntimeFlag.Off,
-    doGpioInit: true,
-    dropPrivileges: RuntimeFlag.On,
-  }
-);
+export const matrix = new LedMatrix(matrixOptions, runtimeOptions);
 
 app.use(bodyParser.json());
 app.use(express.urlencoded());

@@ -8,7 +8,10 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import {
   getImageList,
   setImageOrder,
+  updateImageBrightness,
+  updateImageDuration,
   updateImageOptions,
+  updateImageVisible,
 } from "../../services/imageService";
 import { ImageType } from "../../utils/types";
 import AppBar from "../appBar/AppBar";
@@ -24,6 +27,7 @@ export default function MainScreen(props: any) {
     visible: false,
     duration: 0,
     brightness: 0,
+    current: false,
   });
   const [viewMode, setViewMode] = useState("card");
 
@@ -55,7 +59,7 @@ export default function MainScreen(props: any) {
     setData(newOrder);
   }
 
-  async function updateImageDuration(id: string, duration: number) {
+  async function updateDuration(id: string, duration: number) {
     viewImage.duration = duration;
     setViewImage(viewImage);
     const response = await updateImageOptions(id, duration);
@@ -72,15 +76,10 @@ export default function MainScreen(props: any) {
     }
   }
 
-  async function updateImageBrightness(id: string, brightness: number) {
+  async function updateBrightness(id: string, brightness: number) {
     viewImage.brightness = brightness;
     setViewImage(viewImage);
-    const response = await updateImageOptions(
-      id,
-      undefined,
-      undefined,
-      brightness
-    );
+    const response = await updateImageOptions(id, brightness);
     if (response) {
       for (let i = 0; i < data.length; ++i) {
         if (data[i]._id === id) {
@@ -95,10 +94,10 @@ export default function MainScreen(props: any) {
     }
   }
 
-  async function updateImageVisible(id: string, visible: boolean) {
+  async function updateVisible(id: string, visible: boolean) {
     viewImage.visible = visible;
     setViewImage(viewImage);
-    const response = await updateImageOptions(id, undefined, visible);
+    const response = await updateImageVisible(id, visible);
     if (response) {
       for (let i = 0; i < data.length; ++i) {
         if (data[i]._id === id) {
@@ -153,9 +152,9 @@ export default function MainScreen(props: any) {
         }}
         updateImage={() => {}}
         viewImage={viewImage}
-        onBrightnessChange={updateImageBrightness}
-        onDurationChange={updateImageDuration}
-        onVisibleToggle={updateImageVisible}
+        onBrightnessChange={updateBrightness}
+        onDurationChange={updateDuration}
+        onVisibleToggle={updateVisible}
       />
     </SafeAreaView>
   );

@@ -7,6 +7,7 @@ export class ImageItem extends Realm.Object<ImageItem> {
   duration!: number;
   brightness!: number;
   path!: string;
+  current!: boolean;
 
   static primaryKey = "_id";
 
@@ -20,6 +21,7 @@ export class ImageItem extends Realm.Object<ImageItem> {
       duration: "int",
       brightness: "int",
       path: "string",
+      current: "bool",
     },
   };
 }

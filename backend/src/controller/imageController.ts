@@ -47,30 +47,73 @@ export function getSingleImage(uuid: Realm.BSON.UUID) {
   return image.toJSON();
 }
 
-export function updateImage(uuid: Realm.BSON.UUID, params: Object) {
+export function updateImageBrightness(
+  uuid: Realm.BSON.UUID,
+  brightness: number
+) {
   const image: ImageItem = realm.objectForPrimaryKey(ImageItem, uuid);
   if (image) {
     realm.write(() => {
-      for (const [key, value] of Object.entries(params)) {
-        if (key === "brightness") {
-          image.brightness = value;
-          console.log(
-            `updated image ${uuid} ${image.title} brightness to ${value}`
-          );
-        } else if (key == "duration") {
-          image.duration = value;
-          console.log(
-            `updated image ${uuid} ${image.title} duration to ${value}`
-          );
-        } else if (key == "visible") {
-          image.visible = value;
-          console.log(
-            `updated image ${uuid} ${image.title} visible to ${value}`
-          );
-        }
-      }
+      image.brightness = brightness;
+      console.log(
+        `updated image ${uuid} ${image.title} brightness to ${brightness}`
+      );
     });
     return image.toJSON();
+  } else {
+    return 0;
   }
-  return 1;
+}
+
+export function updateImageDuration(uuid: Realm.BSON.UUID, duration: number) {
+  const image: ImageItem = realm.objectForPrimaryKey(ImageItem, uuid);
+  if (image) {
+    realm.write(() => {
+      image.duration = duration;
+      console.log(
+        `updated image ${uuid} ${image.title} duration to ${duration}`
+      );
+    });
+    return image.toJSON();
+  } else {
+    return 0;
+  }
+}
+
+export function updateImageVisible(uuid: Realm.BSON.UUID, visible: boolean) {
+  const image: ImageItem = realm.objectForPrimaryKey(ImageItem, uuid);
+  if (image) {
+    realm.write(() => {
+      image.visible = visible;
+      console.log(`updated image ${uuid} ${image.title} visible to ${visible}`);
+    });
+    return image.toJSON();
+  } else {
+    return 0;
+  }
+}
+
+export function updateCurrentImage(uuid: Realm.BSON.UUID) {
+  const images = realm.objects(ImageItem);
+  realm.write(() => {
+    const prev = images.filtered("current === true");
+    prev.forEach((image) => {
+      image.current = false;
+    });
+    const curr = images.filtered(`_id === ${uuid}`)[0];
+    curr.current = true;
+    return curr;
+  });
+}
+
+export function getCurrentImage() {
+  const images = realm.objects(ImageItem);
+  const query = images.filtered("current === true");
+  if (query.isEmpty()) {
+    const order = getOrder();
+    const firstImage = realm.objectForPrimaryKey(ImageItem, order[0]);
+    firstImage.current = true;
+    return firstImage;
+  }
+  return query[0];
 }
