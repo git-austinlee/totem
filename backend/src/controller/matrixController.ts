@@ -1,3 +1,4 @@
+import gm from "gm";
 import * as fs from "node:fs";
 
 import { matrix, realm } from "../index.js";
@@ -10,7 +11,10 @@ var running: boolean = false;
 export function startMatrix() {
   let current: ImageItem = getCurrentImage();
   matrix.clear().brightness(current.brightness);
-  resizeByAspectRatio(current.path);
+  gm(current.path).identify(function (err, val) {
+    console.log(val);
+    console.log(JSON.stringify(val));
+  });
   fs.readFile(current.path, (err, data) => {
     if (err) {
       console.log(`fs readfile err: ${err}`);

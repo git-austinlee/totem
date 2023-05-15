@@ -1,4 +1,5 @@
 import ffmpeg from "ffmpeg";
+import gm from "gm";
 import * as fs from "node:fs";
 import path, { dirname } from "path";
 import Realm from "realm";
