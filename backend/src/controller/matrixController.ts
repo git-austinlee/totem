@@ -11,23 +11,33 @@ var running: boolean = false;
 export function startMatrix() {
   let current: ImageItem = getCurrentImage();
   matrix.clear().brightness(current.brightness);
-  gm(current.path).identify(function (err, data: any) {
-    this.resize(128, 96);
-    let frames_count = data.Scene.length;
-    for (let i = 0; i < frames_count; i++) {
-      this.selectFrame(i).buffer(function (error, buffer) {
-        if (error) {
-          console.log(`fs readfile err: ${error}`);
+  gm(current.path)
+    .resize(128, 96)
+    .identify(function (err, data: any) {
+      try {
+        if (err) {
+          console.log(`inside gm identify err ${err}`);
         }
-        matrix.afterSync(() => {
-          matrix.drawBuffer(buffer);
-          setTimeout(() => matrix.sync(), 17);
-        });
-        matrix.sync();
-        running = true;
-      });
-    }
-  });
+        let frames_count = data.Scene.length;
+        console.log(`frames_count ${frames_count}`);
+        for (let i = 0; i < frames_count; i++) {
+          console.log(`on frame ${i}`);
+          this.selectFrame(i).toBuffer(function (error, buffer) {
+            if (error) {
+              console.log(`fs readfile err: ${error}`);
+            }
+            matrix.afterSync(() => {
+              matrix.drawBuffer(buffer);
+              setTimeout(() => matrix.sync(), 17);
+            });
+            matrix.sync();
+            running = true;
+          });
+        }
+      } catch (err) {
+        console.log(`gm identify err: ${err}`);
+      }
+    });
 }
 
 export function stopMatrix() {
