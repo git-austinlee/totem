@@ -11,20 +11,22 @@ var running: boolean = false;
 export function startMatrix() {
   let current: ImageItem = getCurrentImage();
   matrix.clear().brightness(current.brightness);
-  gm(current.path).identify(function (err, val) {
-    console.log(val);
-    console.log(JSON.stringify(val));
-  });
-  fs.readFile(current.path, (err, data) => {
-    if (err) {
-      console.log(`fs readfile err: ${err}`);
+  gm(current.path).identify(function (err, data: any) {
+    this.resize(128, 96);
+    let frames_count = data.Scene.length;
+    for (let i = 0; i < frames_count; i++) {
+      this.selectFrame(i).buffer(function (error, buffer) {
+        if (error) {
+          console.log(`fs readfile err: ${error}`);
+        }
+        matrix.afterSync(() => {
+          matrix.drawBuffer(buffer);
+          setTimeout(() => matrix.sync(), 17);
+        });
+        matrix.sync();
+        running = true;
+      });
     }
-    matrix.afterSync(() => {
-      matrix.drawBuffer(data);
-      setTimeout(() => matrix.sync(), 17);
-    });
-    matrix.sync();
-    running = true;
   });
 }
 
