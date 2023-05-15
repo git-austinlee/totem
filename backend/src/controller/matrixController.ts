@@ -10,8 +10,9 @@ import { getCurrentImage } from "./imageController.js";
 var running: boolean = false;
 
 export function startMatrix() {
+  matrix.clear().brightness(50).fgColor(0x0000ff).afterSync.sync();
+  /*
   let current: ImageItem = getCurrentImage();
-  console.log(`current image: ${current.toJSON()}`);
   resizeByAspectRatio(current.path);
   fs.readFile(current.path, (err, data) => {
     if (err) {
@@ -20,6 +21,7 @@ export function startMatrix() {
     matrix.brightness(current.brightness).drawBuffer(data).sync();
     running = true;
   });
+  */
 }
 
 export function stopMatrix() {
