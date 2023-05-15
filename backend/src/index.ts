@@ -9,7 +9,7 @@ import { LedMatrix } from "rpi-led-matrix";
 import { ImageItem, ImageOrder } from "./models/ImageSchema.js";
 import { matrixOptions, runtimeOptions } from "./models/matrixOptions.js";
 import { imageRouter } from "./routes/imageRouter.js";
-import { scriptRouter } from "./routes/scriptRouter.js";
+import { matrixRouter } from "./routes/matrixRouter.js";
 import { imgsDir, initRealm } from "./utils/utils.js";
 
 const app: Express = express();
@@ -44,7 +44,7 @@ app.use(function (req, res, next) {
   );
   next();
 });
-app.use("/script", scriptRouter);
+app.use("/matrix", matrixRouter);
 app.use("/image", imageRouter);
 app.use("/images", express.static(imgsDir));
 
