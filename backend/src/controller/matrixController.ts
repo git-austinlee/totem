@@ -10,7 +10,7 @@ import { getCurrentImage } from "./imageController.js";
 var running: boolean = false;
 
 export function startMatrix() {
-  matrix.clear().brightness(50).fgColor(0x0000ff).afterSync.sync();
+  matrix.clear().brightness(50).fgColor(0x0000ff).sync();
   /*
   let current: ImageItem = getCurrentImage();
   resizeByAspectRatio(current.path);
