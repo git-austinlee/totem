@@ -61,7 +61,7 @@ export function resizeByAspectRatio(path: string) {
       }
     );
   } catch (err) {
-    console.log(err.code);
-    console.log(err.msg);
+    console.log(`resizeByAspectRatio: ${err.code}`);
+    console.log(`resizeByAspectRatio: ${err.msg}`);
   }
 }

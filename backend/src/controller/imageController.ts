@@ -112,7 +112,9 @@ export function getCurrentImage() {
   if (query.isEmpty()) {
     const order = getOrder();
     const firstImage = realm.objectForPrimaryKey(ImageItem, order[0]);
-    firstImage.current = true;
+    realm.write(() => {
+      firstImage.current = true;
+    });
     return firstImage;
   }
   return query[0];

@@ -1,4 +1,5 @@
 import { spawn } from "child_process";
+import * as fs from "node:fs";
 import * as ps from "ps-node";
 
 import { matrix, realm } from "../index.js";
@@ -11,10 +12,14 @@ var running: boolean = false;
 export function startMatrix() {
   let current: ImageItem = getCurrentImage();
   console.log(`current image: ${current.toJSON()}`);
-  let image: any = resizeByAspectRatio(current.path);
-  console.log(`image: ${JSON.stringify(image)}`);
-  matrix.brightness(current.brightness).drawBuffer(image).sync();
-  running = true;
+  resizeByAspectRatio(current.path);
+  fs.readFile(current.path, (err, data) => {
+    if (err) {
+      console.log(`fs readfile err: ${err}`);
+    }
+    matrix.brightness(current.brightness).drawBuffer(data).sync();
+    running = true;
+  });
 }
 
 export function stopMatrix() {
