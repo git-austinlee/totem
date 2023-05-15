@@ -11,33 +11,30 @@ var running: boolean = false;
 export function startMatrix() {
   let current: ImageItem = getCurrentImage();
   matrix.clear().brightness(current.brightness);
+  let frames_count = 0;
   gm(current.path)
     .resize(128, 96)
     .identify(function (err, data: any) {
-      try {
-        if (err) {
-          console.log(`inside gm identify err ${err}`);
-        }
-        let frames_count = data.Scene.length;
-        console.log(`frames_count ${frames_count}`);
-        for (let i = 0; i < frames_count; i++) {
-          console.log(`on frame ${i}`);
-          this.selectFrame(i).toBuffer(function (error, buffer) {
-            if (error) {
-              console.log(`fs readfile err: ${error}`);
-            }
-            matrix.afterSync(() => {
-              matrix.drawBuffer(buffer);
-              setTimeout(() => matrix.sync(), 17);
-            });
-            matrix.sync();
-            running = true;
-          });
-        }
-      } catch (err) {
-        console.log(`gm identify err: ${err}`);
-      }
+      frames_count = data.Scene.length;
+      console.log(`frames_count ${frames_count}`);
     });
+  for (let i = 0; i < frames_count; i++) {
+    console.log(`on frame ${i}`);
+    gm(current.path)
+      .selectFrame(i)
+      .toBuffer(function (error, buffer) {
+        if (error) {
+          console.log(`gm toBuffer err: ${error}`);
+        }
+        matrix.afterSync(() => {
+          matrix.drawBuffer(buffer);
+          setTimeout(() => matrix.sync(), 50);
+        });
+        matrix.sync();
+        running = true;
+      });
+  }
+  matrix.sync();
 }
 
 export function stopMatrix() {
