@@ -12,30 +12,30 @@ var running: boolean = false;
 export async function startMatrix() {
   let current: ImageItem = getCurrentImage();
   matrix.clear().brightness(current.brightness);
+  gm(current.path).resize(128, 96);
 
   let frames_count = await gifFrames({ url: current.path, frames: "all" }).then(
     function (frameData) {
       return frameData.length;
     }
   );
-
-  for (let i = 0; i < frames_count; i++) {
-    console.log(`on frame ${i}`);
+  running = true;
+  let frame = 0;
+  let interval = setInterval(function () {
+    if (frame === frames_count) {
+      clearInterval(interval);
+    }
     gm(current.path)
-      .resize(128, 96)
-      .selectFrame(i)
+      .selectFrame(frame++)
       .toBuffer(function (error, buffer) {
         if (error) {
           console.log(`gm toBuffer err: ${error}`);
         }
-        matrix.afterSync(() => {
-          matrix.drawBuffer(buffer);
-          setTimeout(() => matrix.sync(), 50);
-        });
-        matrix.sync();
-        running = true;
+        console.log(`buffer ${JSON.stringify(buffer)}`);
+        matrix.drawBuffer(buffer).sync();
       });
-  }
+  }, 200);
+
   matrix.sync();
 }
 
