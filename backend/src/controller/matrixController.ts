@@ -1,3 +1,4 @@
+import { gifFrames } from "gif-frames";
 import gm from "gm";
 import * as fs from "node:fs";
 
@@ -11,13 +12,16 @@ var running: boolean = false;
 export function startMatrix() {
   let current: ImageItem = getCurrentImage();
   matrix.clear().brightness(current.brightness);
-  let frames_count = 0;
-  gm(current.path)
-    .resize(128, 96)
-    .identify(function (err, data: any) {
-      frames_count = data.Scene.length;
-      console.log(`frames_count ${frames_count}`);
-    });
+  gm(current.path).resize(128, 96);
+
+  let frames_count = gifFrames({ url: current.path, frames: "all" }).then(
+    function (frameData) {
+      return frameData.length;
+    }
+  );
+  console.log(frames_count);
+
+  /*
   for (let i = 0; i < frames_count; i++) {
     console.log(`on frame ${i}`);
     gm(current.path)
@@ -34,6 +38,7 @@ export function startMatrix() {
         running = true;
       });
   }
+  */
   matrix.sync();
 }
 
