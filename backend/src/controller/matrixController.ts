@@ -1,6 +1,8 @@
 import gifFrames from "gif-frames";
 import gm from "gm";
 import * as fs from "node:fs";
+import toArray from "stream-to-array";
+import util from "util";
 
 import { matrix, realm } from "../index.js";
 import { ImageItem } from "../models/ImageSchema.js";
@@ -16,6 +18,14 @@ export async function startMatrix() {
 
   let frames_count = await gifFrames({ url: current.path, frames: "all" }).then(
     function (frameData) {
+      let stream = frameData[0].getImage();
+      let buffer: Buffer = toArray(stream).then(function (parts) {
+        const buffers = parts.map((part) =>
+          util.isBuffer(part) ? part : Buffer.from(part)
+        );
+        return Buffer.concat(buffers);
+      });
+      console.log(`buffer ${buffer.length}`);
       return frameData.length;
     }
   );
@@ -31,8 +41,8 @@ export async function startMatrix() {
         if (error) {
           console.log(`gm toBuffer err: ${error}`);
         }
-        console.log(`buffer ${JSON.stringify(buffer)}`);
-        matrix.drawBuffer(buffer).sync();
+        console.log(`buffersize ${buffer.length}`);
+        matrix.drawBuffer(buffer, 128, 96).sync();
       });
   }, 200);
 

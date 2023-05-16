@@ -41,8 +41,10 @@
     "ps-node": "^0.1.6",
     "realm": "^11.9.0",
     "rpi-led-matrix": "^1.14.0",
+    "stream-to-array": "^2.3.0",
     "ts-node": "^10.9.1",
-    "typescript": "^5.0.4"
+    "typescript": "^5.0.4",
+    "util": "^0.12.5"
   },
   "dependencies": {
     "gm": "^1.25.0"
