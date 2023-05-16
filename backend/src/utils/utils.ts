@@ -29,7 +29,7 @@ export function initRealm() {
         visible: true,
         duration: 10,
         brightness: 80,
-        path: path.resolve(`${imgsDir}\\${file}`),
+        path: path.resolve(imgsDir, file),
         current: false,
       };
       newOrder.push(data._id);
