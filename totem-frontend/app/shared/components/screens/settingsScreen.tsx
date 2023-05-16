@@ -9,11 +9,12 @@ export default function SettingsScreen(props: any) {
   const [isSwitchOn, setIsSwitchOn] = React.useState(false);
 
   async function toggleSwitch() {
-    setIsSwitchOn(!isSwitchOn);
-    if (isSwitchOn) {
-      await startMatrix();
-    } else {
+    if (isSwitchOn === true) {
+      setIsSwitchOn(!isSwitchOn);
       await stopMatrix();
+    } else {
+      setIsSwitchOn(!isSwitchOn);
+      await startMatrix();
     }
   }
 
