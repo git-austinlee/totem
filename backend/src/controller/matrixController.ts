@@ -1,51 +1,31 @@
+import { exec } from "child_process";
 import gifFrames from "gif-frames";
 import gm from "gm";
 import * as fs from "node:fs";
+import path from "path";
 import toArray from "stream-to-array";
 import util from "util";
 
 import { matrix, realm } from "../index.js";
 import { ImageItem } from "../models/ImageSchema.js";
-import { resizeByAspectRatio } from "../utils/utils.js";
-import { getCurrentImage } from "./imageController.js";
+import { matrixOptions } from "../models/matrixOptions.js";
+import { resizeByAspectRatio, servicePath } from "../utils/utils.js";
+import { getCurrentImage, updateCurrentImage } from "./imageController.js";
 
 var running: boolean = false;
+let interval = null;
 
 export async function startMatrix() {
   let current: ImageItem = getCurrentImage();
   matrix.clear().brightness(current.brightness);
-  gm(current.path).resize(128, 96);
-
-  let frames_count = await gifFrames({ url: current.path, frames: "all" }).then(
-    function (frameData) {
-      let stream = frameData[0].getImage();
-      let buffer: Buffer = toArray(stream).then(function (parts) {
-        const buffers = parts.map((part) =>
-          util.isBuffer(part) ? part : Buffer.from(part)
-        );
-        return Buffer.concat(buffers);
+  gm(current.path)
+    .selectFrame(1)
+    .toBuffer(function (err: Error, buffer: Buffer) {
+      matrix.afterSync(() => {
+        matrix.drawBuffer(buffer);
+        setTimeout(() => matrix.sync(), 17);
       });
-      console.log(`buffer ${buffer.length}`);
-      return frameData.length;
-    }
-  );
-  running = true;
-  let frame = 0;
-  let interval = setInterval(function () {
-    if (frame === frames_count) {
-      clearInterval(interval);
-    }
-    gm(current.path)
-      .selectFrame(frame++)
-      .toBuffer(function (error, buffer) {
-        if (error) {
-          console.log(`gm toBuffer err: ${error}`);
-        }
-        console.log(`buffersize ${buffer.length}`);
-        matrix.drawBuffer(buffer, 128, 96).sync();
-      });
-  }, 200);
-
+    });
   matrix.sync();
 }
 

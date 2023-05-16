@@ -7,6 +7,7 @@ import Realm from "realm";
 import { LedMatrix } from "rpi-led-matrix";
 
 import { getCurrentImage } from "./controller/imageController.js";
+import { startMatrix } from "./controller/matrixController.js";
 import { ImageItem, ImageOrder } from "./models/ImageSchema.js";
 import { matrixOptions, runtimeOptions } from "./models/matrixOptions.js";
 import { imageRouter } from "./routes/imageRouter.js";
@@ -28,8 +29,9 @@ initRealm();
 /*
  * Matrix
  */
-//export const matrix = null;
-export const matrix = new LedMatrix(matrixOptions, runtimeOptions);
+export const matrix = null;
+startMatrix();
+//export const matrix = new LedMatrix(matrixOptions, runtimeOptions);
 
 app.use(bodyParser.json());
 app.use(express.urlencoded());
