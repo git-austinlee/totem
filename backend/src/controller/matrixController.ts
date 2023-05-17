@@ -30,11 +30,11 @@ export async function startMatrix() {
   interval = setInterval(function () {
     const frame = gifData.frames[currFrame++];
     const newBuffer = removeAlpha(frame);
-    matrix.drawBuffer(newBuffer).sync();
-    if (currFrame > gifData.frames.length) {
+    matrix.drawBuffer(newBuffer, 128 * 2, 94).sync();
+    if (currFrame >= gifData.frames.length) {
       currFrame = 0;
     }
-  }, 100);
+  }, 50);
 }
 
 export function stopMatrix() {
