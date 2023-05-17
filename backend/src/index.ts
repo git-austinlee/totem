@@ -29,8 +29,8 @@ initRealm();
 /*
  * Matrix
  */
-export const matrix = null;
-//export const matrix = new LedMatrix(matrixOptions, runtimeOptions);
+//export const matrix = null;
+export const matrix = new LedMatrix(matrixOptions, runtimeOptions);
 startMatrix();
 
 app.use(bodyParser.json());
