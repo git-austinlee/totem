@@ -100,7 +100,7 @@ export function updateCurrentImage(uuid: Realm.BSON.UUID) {
     prev.forEach((image) => {
       image.current = false;
     });
-    const curr = images.filtered(`_id == ${uuid}`)[0];
+    const curr = realm.objectForPrimaryKey(ImageItem, uuid);
     curr.current = true;
     return curr;
   });
@@ -118,4 +118,10 @@ export function getCurrentImage() {
     return firstImage;
   }
   return query[0];
+}
+
+export function setCurrentByName(name: string) {
+  const images = realm.objects(ImageItem);
+  const query = images.filtered("title CONTAINS $0", name);
+  if (!query.isEmpty()) updateCurrentImage(query[0]._id);
 }

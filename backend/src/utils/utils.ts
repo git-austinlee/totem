@@ -10,8 +10,8 @@ import { ImageItem, ImageOrder } from "../models/ImageSchema.js";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
-export const imgsDir = path.resolve(__dirname, "../../../resources/imgs");
-export const servicePath = path.resolve(
+export const imgsDir = path.join(__dirname, "../../../resources/imgs");
+export const servicePath = path.join(
   __dirname,
   "../../../service/rpi-rgb-led-matrix/examples-api-use/image-example"
 );
@@ -29,7 +29,7 @@ export function initRealm() {
         visible: true,
         duration: 10,
         brightness: 80,
-        path: path.resolve(imgsDir, file),
+        path: path.join(imgsDir, file),
         current: false,
       };
       newOrder.push(data._id);
