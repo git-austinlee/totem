@@ -34,10 +34,14 @@ export async function startMatrix() {
   console.log(current.path);
   matrix.clear().brightness(current.brightness);
   const gifData: any = await loadImageAndScale(current.path);
-  const newBuffer = mirrorImage(gifData.frames[0]);
-  console.log(`newBuffer stats ${newBuffer.length}`);
-  //console.log(JSON.stringify(newBuffer));
-  matrix.drawBuffer(newBuffer).sync();
+  matrix.afterSync((mat, dt, t) => {
+    gifData.frames.forEach((frame) => {
+      const newBuffer = removeAlpha(frame);
+      matrix.drawBuffer(newBuffer);
+    });
+    setTimeout(() => matrix.sync(), 20);
+  });
+  matrix.sync();
 
   /*
   console.log("gifframes");
@@ -106,8 +110,6 @@ async function loadImageAndScale(path: string) {
         if (err) reject(err);
         GifUtil.read(buffer)
           .then(function (imageGif) {
-            //console.log(imageGif.buffer.length);
-            //console.log(imageGif.frames);
             resolve(imageGif);
           })
           .catch((err) => reject(err));
@@ -115,11 +117,11 @@ async function loadImageAndScale(path: string) {
   });
 }
 
-function mirrorImage(frame: GifFrame) {
-  console.time("mirrorImage");
+function removeAlpha(frame: GifFrame) {
+  console.time("removeAlpha");
   const height = frame.bitmap.height;
   const width = frame.bitmap.width;
-  const newBuffer = new Uint8Array(height * width * 3 * 2);
+  const newBuffer = new Uint8Array(width * height * 3);
 
   let x = 0;
   let y = 0;
@@ -138,7 +140,7 @@ function mirrorImage(frame: GifFrame) {
       row = [];
     }
   }
-  console.timeEnd("mirrorImage");
+  console.timeEnd("removeAlpha");
   return newBuffer;
 }
 
