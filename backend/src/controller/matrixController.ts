@@ -3,43 +3,46 @@ import gm from "gm";
 
 import { matrix, realm } from "../index.js";
 import { ImageItem } from "../models/ImageSchema.js";
+import { matrixOptions } from "../models/matrixOptions.js";
 import { getCurrentImage, nextImage } from "./imageController.js";
 
-var running: boolean = false;
+var running = false;
 let interval = null;
 
 export async function startMatrix() {
+  running = true;
   let current: ImageItem = getCurrentImage();
   matrix.clear().brightness(current.brightness);
   let currFrame: number = 0;
   let startTime = performance.now();
   let gifData: any = await loadImageAndScale(current.path);
 
-  running = true;
-
-  while (running) {
-    if (gifData === null) {
+  interval = setInterval(async function () {
+    if (performance.now() - startTime >= current.duration * 1000) {
+      currFrame = 0;
+      current = nextImage();
       gifData = await loadImageAndScale(current.path);
+      startTime = performance.now();
     }
-    interval = setInterval(function () {
-      if (performance.now() - startTime >= current.duration * 1000) {
-        currFrame = 0;
-        gifData = null;
-        current = nextImage();
-        startTime = performance.now();
-      }
-      const frame = gifData.frames[currFrame++];
-      const newBuffer = removeAlpha(frame);
-      matrix.drawBuffer(newBuffer, 128 * 2, 94).sync();
-      if (currFrame >= gifData.frames.length) {
-        currFrame = 0;
-      }
-    }, 50);
-  }
+    if (gifData.frames.length > 1) ++currFrame;
+    let frame = gifData.frames[currFrame];
+    let newBuffer = removeAlpha(frame);
+    matrix
+      .drawBuffer(
+        newBuffer,
+        matrixOptions.cols * matrixOptions.chainLength,
+        matrixOptions.rows * matrixOptions.parallel
+      )
+      .sync();
+    if (currFrame >= gifData.frames.length) {
+      currFrame = 0;
+    }
+  }, 50);
 }
 
 export function stopMatrix() {
   matrix.clear().brightness(0).sync();
+  clearInterval(interval);
   running = false;
 }
 
@@ -57,7 +60,7 @@ async function loadImageAndScale(path: string) {
           .then(function (imageGif) {
             resolve(imageGif);
           })
-          .catch((err) => reject(err));
+          .catch((err) => resolve(err));
       });
   });
 }
