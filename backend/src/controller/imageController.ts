@@ -131,6 +131,12 @@ export function nextImage() {
   let curr = getCurrentImage();
   const order = getOrder();
   let currIndex = order.findIndex((uuid) => uuid === curr._id);
-  if (++currIndex >= order.length) currIndex = 0;
-  return setCurrentImage(order[currIndex]);
+  // loop to find the next visible image
+  for (let i = 0; i < order.length; i++) {
+    if (++currIndex >= order.length) currIndex = 0;
+    let next = realm.objectForPrimaryKey(ImageItem, order[currIndex]);
+    if (next.visible) {
+      return setCurrentImage(next._id);
+    }
+  }
 }

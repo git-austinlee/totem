@@ -30,6 +30,13 @@ export async function startMatrix() {
     if (performance.now() - startTime >= current.duration * 1000) {
       currFrame = 0;
       current = nextImage();
+      if (current == null) {
+        this.stopMatrix();
+        return;
+      }
+      console.log(
+        `showing image ${current.title} for ${current.duration} seconds`
+      );
       newBuffer = null;
       gifData = await loadImageAndScale(current.path);
       startTime = performance.now();
