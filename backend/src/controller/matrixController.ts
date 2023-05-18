@@ -37,20 +37,28 @@ export async function startMatrix() {
 
     if (gifData instanceof Gif) {
       frame = gifData.frames[currFrame++];
-      if (currFrame >= gifData.frames.length) currFrame = 0;
+      if (currFrame >= gifData.frames.length) {
+        currFrame = 0;
+      }
       newBuffer = removeAlpha(frame);
     } else {
       frame = gifData;
-      if (newBuffer === null) newBuffer = removeAlpha(frame);
+      if (newBuffer == null) {
+        newBuffer = removeAlpha(frame);
+      }
     }
 
-    matrix
-      .drawBuffer(
-        newBuffer,
-        matrixOptions.cols * matrixOptions.chainLength,
-        matrixOptions.rows * matrixOptions.parallel
-      )
-      .sync();
+    try {
+      matrix
+        .drawBuffer(
+          newBuffer,
+          matrixOptions.cols * matrixOptions.chainLength,
+          matrixOptions.rows * matrixOptions.parallel
+        )
+        .sync();
+    } catch {
+      (err) => console.log(err);
+    }
   }, 50);
 }
 
