@@ -1,5 +1,6 @@
 import { Gif, GifFrame, GifUtil } from "gifwrap";
 import gm from "gm";
+import { GifReader } from "omggif";
 
 import { matrix, realm } from "../index.js";
 import { ImageItem } from "../models/ImageSchema.js";
@@ -15,6 +16,7 @@ var interval = null;
 var currFrame: number = 0;
 var frame: GifFrame | Buffer;
 var newBuffer: Uint8Array;
+var interval2 = null;
 
 function resetVars() {
   currFrame = 0;
@@ -31,13 +33,55 @@ export async function startMatrix() {
 
   let t0 = Date.now();
 
-  interval = setInterval(async function () {
-    await run(t0, current, gifData);
+  interval2 = setInterval(async () => {
+    current = nextImage();
+    if (current == null) {
+      stopMatrix();
+    }
+    console.log(
+      `showing image ${current.title} for ${current.duration} seconds`
+    );
+    gifData = await loadImageAndScale(current.path);
+    t0 = Date.now();
+  }, current.duration);
+
+  interval = setInterval(function () {
+    if ((Date.now() - t0) / 1000 > current.duration) {
+      resetVars();
+      clearInterval(interval);
+    }
+
+    if (gifData instanceof Gif) {
+      frame = gifData.frames[currFrame++];
+      if (currFrame >= gifData.frames.length) {
+        currFrame = 0;
+      }
+      newBuffer = removeAlpha(frame);
+    } else {
+      frame = gifData;
+      if (newBuffer == null) {
+        newBuffer = removeAlpha(frame);
+      }
+    }
+
+    try {
+      matrix
+        .brightness(current.brightness)
+        .drawBuffer(
+          newBuffer,
+          matrixOptions.cols * matrixOptions.chainLength,
+          matrixOptions.rows * matrixOptions.parallel
+        )
+        .sync();
+    } catch {
+      (err) => console.log(err);
+    }
   }, 80);
 }
 
 export function stopMatrix() {
   clearInterval(interval);
+  clearInterval(interval2);
   resetVars();
   matrix.clear().brightness(0).sync();
   running = false;
@@ -100,6 +144,7 @@ function removeAlpha(frame: GifFrame | Buffer) {
 }
 
 async function run(startTime, current, gifData) {
+  return new Promise((resolve, reject) => {});
   let t1 = Date.now();
   if ((t1 - startTime) / 1000 > current.duration) {
     resetVars();
