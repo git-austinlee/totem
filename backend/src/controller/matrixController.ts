@@ -12,32 +12,30 @@ import {
 
 var running = false;
 let interval = null;
+let currFrame: number = 0;
+let frame: GifFrame | Buffer;
+let newBuffer: Uint8Array;
 
 export async function startMatrix() {
   running = true;
-  setCurrentByName("surprised-pikachu");
   let current: ImageItem = getCurrentImage();
-  matrix.clear().brightness(current.brightness);
+  matrix.clear();
 
-  let currFrame: number = 0;
-  let frame: GifFrame | Buffer;
-  let newBuffer: Uint8Array;
   let gifData: any = await loadImageAndScale(current.path);
 
   let startTime = performance.now();
 
   interval = setInterval(async function () {
-    if (performance.now() - startTime >= current.duration * 1000) {
-      currFrame = 0;
+    if ((performance.now() - startTime) * 1000 >= current.duration) {
+      resetVars();
       current = nextImage();
       if (current == null) {
-        this.stopMatrix();
+        stopMatrix();
         return;
       }
       console.log(
         `showing image ${current.title} for ${current.duration} seconds`
       );
-      newBuffer = null;
       gifData = await loadImageAndScale(current.path);
       startTime = performance.now();
     }
@@ -57,6 +55,7 @@ export async function startMatrix() {
 
     try {
       matrix
+        .brightness(current.brightness)
         .drawBuffer(
           newBuffer,
           matrixOptions.cols * matrixOptions.chainLength,
@@ -66,12 +65,13 @@ export async function startMatrix() {
     } catch {
       (err) => console.log(err);
     }
-  }, 50);
+  }, 80);
 }
 
 export function stopMatrix() {
-  matrix.clear().brightness(0).sync();
   clearInterval(interval);
+  resetVars();
+  matrix.clear().brightness(0).sync();
   running = false;
 }
 
@@ -128,4 +128,10 @@ function removeAlpha(frame: GifFrame | Buffer) {
     }
   }
   return newBuffer;
+}
+
+function resetVars() {
+  currFrame = 0;
+  frame = null;
+  newBuffer = null;
 }
