@@ -1,4 +1,4 @@
-import { GifFrame, GifUtil } from "gifwrap";
+import { Gif, GifFrame, GifUtil } from "gifwrap";
 import gm from "gm";
 
 import { matrix, realm } from "../index.js";
@@ -18,20 +18,32 @@ export async function startMatrix() {
   setCurrentByName("surprised-pikachu");
   let current: ImageItem = getCurrentImage();
   matrix.clear().brightness(current.brightness);
+
   let currFrame: number = 0;
-  let startTime = performance.now();
+  let frame: GifFrame | Buffer;
+  let newBuffer: Uint8Array;
   let gifData: any = await loadImageAndScale(current.path);
+
+  let startTime = performance.now();
 
   interval = setInterval(async function () {
     if (performance.now() - startTime >= current.duration * 1000) {
       currFrame = 0;
       current = nextImage();
+      newBuffer = null;
       gifData = await loadImageAndScale(current.path);
       startTime = performance.now();
     }
-    if (gifData.frames.length > 1) ++currFrame;
-    let frame = gifData.frames[currFrame];
-    let newBuffer = removeAlpha(frame);
+
+    if (gifData instanceof Gif) {
+      frame = gifData.frames[currFrame++];
+      if (currFrame >= gifData.frames.length) currFrame = 0;
+      newBuffer = removeAlpha(frame);
+    } else {
+      frame = gifData;
+      if (newBuffer === null) newBuffer = removeAlpha(frame);
+    }
+
     matrix
       .drawBuffer(
         newBuffer,
@@ -39,9 +51,6 @@ export async function startMatrix() {
         matrixOptions.rows * matrixOptions.parallel
       )
       .sync();
-    if (currFrame >= gifData.frames.length) {
-      currFrame = 0;
-    }
   }, 50);
 }
 
