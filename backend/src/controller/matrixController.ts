@@ -82,7 +82,7 @@ export function isPlaying() {
 async function loadImageAndScale(path: string) {
   return new Promise((resolve, reject) => {
     gm(path)
-      .resize(128, 92, "!")
+      .resize(128, 96, "!")
       .toBuffer((err, buffer) => {
         if (err) reject(err);
         GifUtil.read(buffer)
