@@ -10,7 +10,7 @@ import {
 
 export const matrixOptions: MatrixOptions = {
   brightness: 100,
-  chainLength: 2,
+  chainLength: 4,
   rows: 32,
   cols: 64,
   parallel: 3,
@@ -31,7 +31,8 @@ export const matrixOptions: MatrixOptions = {
 };
 
 export const runtimeOptions: RuntimeOptions = {
-  gpioSlowdown: 4,
+  // @ts-ignore
+  gpioSlowdown: 5,
   daemon: RuntimeFlag.Off,
   doGpioInit: true,
   dropPrivileges: RuntimeFlag.On,

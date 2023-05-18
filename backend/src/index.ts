@@ -1,18 +1,14 @@
 import bodyParser from "body-parser";
-import cors from "cors";
 import express, { Express, Request, Response } from "express";
-import http from "http";
-import * as path from "path";
 import Realm from "realm";
 import { LedMatrix } from "rpi-led-matrix";
 
-import { getCurrentImage } from "./controller/imageController.js";
 import { startMatrix } from "./controller/matrixController.js";
 import { ImageItem, ImageOrder } from "./models/ImageSchema.js";
 import { matrixOptions, runtimeOptions } from "./models/matrixOptions.js";
 import { imageRouter } from "./routes/imageRouter.js";
 import { matrixRouter } from "./routes/matrixRouter.js";
-import { imgsDir, initRealm, resizeByAspectRatio } from "./utils/utils.js";
+import { imgsDir, initRealm } from "./utils/utils.js";
 
 const app: Express = express();
 const port: number = 3000;

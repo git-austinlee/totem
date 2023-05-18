@@ -93,17 +93,18 @@ export function updateImageVisible(uuid: Realm.BSON.UUID, visible: boolean) {
   }
 }
 
-export function updateCurrentImage(uuid: Realm.BSON.UUID) {
+export function setCurrentImage(uuid: Realm.BSON.UUID) {
   const images = realm.objects(ImageItem);
+  let curr: ImageItem;
   realm.write(() => {
     const prev = images.filtered("current == true");
     prev.forEach((image) => {
       image.current = false;
     });
-    const curr = realm.objectForPrimaryKey(ImageItem, uuid);
+    curr = realm.objectForPrimaryKey(ImageItem, uuid);
     curr.current = true;
-    return curr;
   });
+  return curr;
 }
 
 export function getCurrentImage() {
@@ -123,5 +124,13 @@ export function getCurrentImage() {
 export function setCurrentByName(name: string) {
   const images = realm.objects(ImageItem);
   const query = images.filtered("title CONTAINS $0", name);
-  if (!query.isEmpty()) updateCurrentImage(query[0]._id);
+  if (!query.isEmpty()) setCurrentImage(query[0]._id);
+}
+
+export function nextImage() {
+  let curr = getCurrentImage();
+  const order = getOrder();
+  let currIndex = order.findIndex((uuid) => uuid === curr._id);
+  if (++currIndex >= order.length) currIndex = 0;
+  return setCurrentImage(order[currIndex]);
 }

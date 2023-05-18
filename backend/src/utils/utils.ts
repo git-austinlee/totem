@@ -1,5 +1,3 @@
-import ffmpeg from "ffmpeg";
-import gm from "gm";
 import * as fs from "node:fs";
 import path, { dirname } from "path";
 import Realm from "realm";
@@ -48,27 +46,3 @@ export function initRealm() {
   // Create current img if it doesn't exist
   realm.write(() => {});
 }
-
-export function resizeByAspectRatio(path: string) {
-  /*
-   *   Set the specified image/videos aspect ratio.
-   *   Aspect ratio of the panel is 4:3
-   */
-  try {
-    var process = new ffmpeg(path);
-    process.then(
-      function (video) {
-        video.setVideoAspectRatio("4:3");
-        return video;
-      },
-      function (err) {
-        console.log(`resizeByAspectRatio err: ${err}`);
-      }
-    );
-  } catch (err) {
-    console.log(`resizeByAspectRatio: ${err.code}`);
-    console.log(`resizeByAspectRatio: ${err.msg}`);
-  }
-}
-
-export function resizeByPixel(path: string) {}
