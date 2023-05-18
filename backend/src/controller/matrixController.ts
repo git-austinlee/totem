@@ -11,10 +11,16 @@ import {
 } from "./imageController.js";
 
 var running = false;
-let interval = null;
+var interval = null;
 let currFrame: number = 0;
 let frame: GifFrame | Buffer;
 let newBuffer: Uint8Array;
+
+function resetVars() {
+  currFrame = 0;
+  frame = null;
+  newBuffer = null;
+}
 
 export async function startMatrix() {
   running = true;
@@ -23,21 +29,22 @@ export async function startMatrix() {
 
   let gifData: any = await loadImageAndScale(current.path);
 
-  let startTime = performance.now();
+  let t0 = Date.now();
 
   interval = setInterval(async function () {
-    if ((performance.now() - startTime) / 1000 >= current.duration) {
+    let t1 = Date.now();
+    if ((t1 - t0) / 1000 > current.duration) {
       resetVars();
       current = nextImage();
       if (current == null) {
-        stopMatrix();
+        await stopMatrix();
         return;
       }
       console.log(
         `showing image ${current.title} for ${current.duration} seconds`
       );
       gifData = await loadImageAndScale(current.path);
-      startTime = performance.now();
+      t0 = Date.now();
     }
 
     if (gifData instanceof Gif) {
@@ -79,17 +86,18 @@ export function isPlaying() {
   return running;
 }
 
-async function loadImageAndScale(path: string) {
+function loadImageAndScale(path: string) {
   return new Promise((resolve, reject) => {
     gm(path)
       .resize(128, 96, "!")
       .toBuffer((err, buffer) => {
-        if (err) reject(err);
         GifUtil.read(buffer)
           .then(function (imageGif) {
             resolve(imageGif);
           })
-          .catch((err) => resolve(buffer));
+          .catch((err) => {
+            resolve(buffer);
+          });
       });
   });
 }
@@ -128,10 +136,4 @@ function removeAlpha(frame: GifFrame | Buffer) {
     }
   }
   return newBuffer;
-}
-
-function resetVars() {
-  currFrame = 0;
-  frame = null;
-  newBuffer = null;
 }
