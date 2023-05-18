@@ -1,7 +1,7 @@
-import Realm from "realm";
+import Realm from 'realm';
 
-import { realm } from "../index.js";
-import { ImageItem, ImageOrder } from "../models/ImageSchema.js";
+import { realm } from '../index.js';
+import { ImageItem, ImageOrder } from '../models/ImageSchema.js';
 
 export function setOrder(newOrder: string[]) {
   let temp: Realm.BSON.UUID[] = [];
@@ -130,7 +130,7 @@ export function setCurrentByName(name: string) {
 export function nextImage() {
   let curr = getCurrentImage();
   const order = getOrder();
-  let currIndex = order.findIndex((uuid) => uuid === curr._id);
+  let currIndex = order.findIndex((uuid) => uuid.equals(curr._id));
   // loop to find the next visible image
   for (let i = 0; i < order.length; i++) {
     if (++currIndex >= order.length) currIndex = 0;

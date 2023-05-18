@@ -12,9 +12,9 @@ import {
 
 var running = false;
 var interval = null;
-let currFrame: number = 0;
-let frame: GifFrame | Buffer;
-let newBuffer: Uint8Array;
+var currFrame: number = 0;
+var frame: GifFrame | Buffer;
+var newBuffer: Uint8Array;
 
 function resetVars() {
   currFrame = 0;
@@ -32,46 +32,7 @@ export async function startMatrix() {
   let t0 = Date.now();
 
   interval = setInterval(async function () {
-    let t1 = Date.now();
-    if ((t1 - t0) / 1000 > current.duration) {
-      resetVars();
-      current = nextImage();
-      if (current == null) {
-        await stopMatrix();
-        return;
-      }
-      console.log(
-        `showing image ${current.title} for ${current.duration} seconds`
-      );
-      gifData = await loadImageAndScale(current.path);
-      t0 = Date.now();
-    }
-
-    if (gifData instanceof Gif) {
-      frame = gifData.frames[currFrame++];
-      if (currFrame >= gifData.frames.length) {
-        currFrame = 0;
-      }
-      newBuffer = removeAlpha(frame);
-    } else {
-      frame = gifData;
-      if (newBuffer == null) {
-        newBuffer = removeAlpha(frame);
-      }
-    }
-
-    try {
-      matrix
-        .brightness(current.brightness)
-        .drawBuffer(
-          newBuffer,
-          matrixOptions.cols * matrixOptions.chainLength,
-          matrixOptions.rows * matrixOptions.parallel
-        )
-        .sync();
-    } catch {
-      (err) => console.log(err);
-    }
+    await run(t0, current, gifData);
   }, 80);
 }
 
@@ -136,4 +97,47 @@ function removeAlpha(frame: GifFrame | Buffer) {
     }
   }
   return newBuffer;
+}
+
+async function run(startTime, current, gifData) {
+  let t1 = Date.now();
+  if ((t1 - startTime) / 1000 > current.duration) {
+    resetVars();
+    current = nextImage();
+    if (current == null) {
+      stopMatrix();
+      return;
+    }
+    console.log(
+      `showing image ${current.title} for ${current.duration} seconds`
+    );
+    gifData = await loadImageAndScale(current.path);
+    startTime = Date.now();
+  }
+
+  if (gifData instanceof Gif) {
+    frame = gifData.frames[currFrame++];
+    if (currFrame >= gifData.frames.length) {
+      currFrame = 0;
+    }
+    newBuffer = removeAlpha(frame);
+  } else {
+    frame = gifData;
+    if (newBuffer == null) {
+      newBuffer = removeAlpha(frame);
+    }
+  }
+
+  try {
+    matrix
+      .brightness(current.brightness)
+      .drawBuffer(
+        newBuffer,
+        matrixOptions.cols * matrixOptions.chainLength,
+        matrixOptions.rows * matrixOptions.parallel
+      )
+      .sync();
+  } catch {
+    (err) => console.log(err);
+  }
 }
