@@ -12,11 +12,11 @@ import {
 } from "./imageController.js";
 
 var running = false;
-var interval = null;
+var loopInterval = null;
 var currFrame: number = 0;
 var frame: GifFrame | Buffer;
 var newBuffer: Uint8Array;
-var interval2 = null;
+var nextImageInterval = null;
 
 function resetVars() {
   currFrame = 0;
@@ -31,26 +31,18 @@ export async function startMatrix() {
 
   let gifData: any = await loadImageAndScale(current.path);
 
-  let t0 = Date.now();
-
-  interval2 = setInterval(async () => {
+  nextImageInterval = setInterval(async () => {
     current = nextImage();
-    if (current == null) {
+    if (current === undefined || current === null) {
       stopMatrix();
     }
     console.log(
       `showing image ${current.title} for ${current.duration} seconds`
     );
     gifData = await loadImageAndScale(current.path);
-    t0 = Date.now();
-  }, current.duration);
+  }, current.duration * 1000);
 
-  interval = setInterval(function () {
-    if ((Date.now() - t0) / 1000 > current.duration) {
-      resetVars();
-      clearInterval(interval);
-    }
-
+  loopInterval = setInterval(function () {
     if (gifData instanceof Gif) {
       frame = gifData.frames[currFrame++];
       if (currFrame >= gifData.frames.length) {
@@ -80,10 +72,10 @@ export async function startMatrix() {
 }
 
 export function stopMatrix() {
-  clearInterval(interval);
-  clearInterval(interval2);
-  resetVars();
+  clearInterval(loopInterval);
+  clearInterval(nextImageInterval);
   matrix.clear().brightness(0).sync();
+  resetVars();
   running = false;
 }
 
@@ -98,10 +90,12 @@ function loadImageAndScale(path: string) {
       .toBuffer((err, buffer) => {
         GifUtil.read(buffer)
           .then(function (imageGif) {
-            resolve(imageGif);
+            console.log(`in loadImageAndScale then ${path}`);
+            return imageGif;
           })
           .catch((err) => {
-            resolve(buffer);
+            console.log(`in loadImageAndScale catch ${path}`);
+            return buffer;
           });
       });
   });

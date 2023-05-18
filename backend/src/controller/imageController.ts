@@ -1,7 +1,7 @@
-import Realm from 'realm';
+import Realm from "realm";
 
-import { realm } from '../index.js';
-import { ImageItem, ImageOrder } from '../models/ImageSchema.js';
+import { realm } from "../index.js";
+import { ImageItem, ImageOrder } from "../models/ImageSchema.js";
 
 export function setOrder(newOrder: string[]) {
   let temp: Realm.BSON.UUID[] = [];
@@ -139,4 +139,5 @@ export function nextImage() {
       return setCurrentImage(next._id);
     }
   }
+  return;
 }
