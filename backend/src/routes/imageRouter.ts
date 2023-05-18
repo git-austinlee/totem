@@ -34,7 +34,7 @@ imageRouter.post("/setOrder", (req: Request, res: Response) => {
    */
   const newOrder = req.body.newOrder;
   setOrder(newOrder);
-  res.status(200).send();
+  res.sendStatus(200);
 });
 
 imageRouter.post("/update/duration/:id", (req: Request, res: Response) => {

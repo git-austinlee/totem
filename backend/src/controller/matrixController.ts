@@ -1,6 +1,5 @@
 import { Gif, GifFrame, GifUtil } from "gifwrap";
 import gm from "gm";
-import { GifReader } from "omggif";
 
 import { matrix, realm } from "../index.js";
 import { ImageItem } from "../models/ImageSchema.js";
@@ -40,6 +39,7 @@ export async function startMatrix() {
       `showing image ${current.title} for ${current.duration} seconds`
     );
     gifData = await loadImageAndScale(current.path);
+    resetVars();
   }, current.duration * 1000);
 
   loopInterval = setInterval(function () {
@@ -91,11 +91,11 @@ function loadImageAndScale(path: string) {
         GifUtil.read(buffer)
           .then(function (imageGif) {
             console.log(`in loadImageAndScale then ${path}`);
-            return imageGif;
+            resolve(imageGif);
           })
           .catch((err) => {
             console.log(`in loadImageAndScale catch ${path}`);
-            return buffer;
+            resolve(buffer);
           });
       });
   });
@@ -135,48 +135,4 @@ function removeAlpha(frame: GifFrame | Buffer) {
     }
   }
   return newBuffer;
-}
-
-async function run(startTime, current, gifData) {
-  return new Promise((resolve, reject) => {});
-  let t1 = Date.now();
-  if ((t1 - startTime) / 1000 > current.duration) {
-    resetVars();
-    current = nextImage();
-    if (current == null) {
-      stopMatrix();
-      return;
-    }
-    console.log(
-      `showing image ${current.title} for ${current.duration} seconds`
-    );
-    gifData = await loadImageAndScale(current.path);
-    startTime = Date.now();
-  }
-
-  if (gifData instanceof Gif) {
-    frame = gifData.frames[currFrame++];
-    if (currFrame >= gifData.frames.length) {
-      currFrame = 0;
-    }
-    newBuffer = removeAlpha(frame);
-  } else {
-    frame = gifData;
-    if (newBuffer == null) {
-      newBuffer = removeAlpha(frame);
-    }
-  }
-
-  try {
-    matrix
-      .brightness(current.brightness)
-      .drawBuffer(
-        newBuffer,
-        matrixOptions.cols * matrixOptions.chainLength,
-        matrixOptions.rows * matrixOptions.parallel
-      )
-      .sync();
-  } catch {
-    (err) => console.log(err);
-  }
 }

@@ -61,7 +61,7 @@ export function updateImageBrightness(
     });
     return image.toJSON();
   } else {
-    return 0;
+    return 1;
   }
 }
 
@@ -76,7 +76,7 @@ export function updateImageDuration(uuid: Realm.BSON.UUID, duration: number) {
     });
     return image.toJSON();
   } else {
-    return 0;
+    return 1;
   }
 }
 
@@ -89,7 +89,7 @@ export function updateImageVisible(uuid: Realm.BSON.UUID, visible: boolean) {
     });
     return image.toJSON();
   } else {
-    return 0;
+    return 1;
   }
 }
 
