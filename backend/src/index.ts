@@ -27,7 +27,7 @@ initRealm();
  */
 //export const matrix = null;
 export const matrix = new LedMatrix(matrixOptions, runtimeOptions);
-startMatrix();
+//startMatrix();
 
 app.use(bodyParser.json());
 app.use(express.urlencoded());

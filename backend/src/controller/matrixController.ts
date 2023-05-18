@@ -24,51 +24,53 @@ function resetVars() {
 }
 
 export async function startMatrix() {
-  running = true;
-  let current: ImageItem = getCurrentImage();
-  matrix.clear();
+  if (!running) {
+    running = true;
+    let current: ImageItem = getCurrentImage();
+    matrix.clear();
 
-  let gifData: any = await loadImageAndScale(current.path);
+    let gifData: any = await loadImageAndScale(current.path);
 
-  nextImageInterval = setInterval(async () => {
-    current = nextImage();
-    if (current === undefined || current === null) {
-      stopMatrix();
-    }
-    console.log(
-      `showing image ${current.title} for ${current.duration} seconds`
-    );
-    gifData = await loadImageAndScale(current.path);
-    resetVars();
-  }, current.duration * 1000);
-
-  loopInterval = setInterval(function () {
-    if (gifData instanceof Gif) {
-      frame = gifData.frames[currFrame++];
-      if (currFrame >= gifData.frames.length) {
-        currFrame = 0;
+    nextImageInterval = setInterval(async () => {
+      current = nextImage();
+      if (current === undefined || current === null) {
+        stopMatrix();
       }
-      newBuffer = removeAlpha(frame);
-    } else {
-      frame = gifData;
-      if (newBuffer == null) {
+      console.log(
+        `showing image ${current.title} for ${current.duration} seconds`
+      );
+      gifData = await loadImageAndScale(current.path);
+      resetVars();
+    }, current.duration * 1000);
+
+    loopInterval = setInterval(function () {
+      if (gifData instanceof Gif) {
+        frame = gifData.frames[currFrame++];
+        if (currFrame >= gifData.frames.length) {
+          currFrame = 0;
+        }
         newBuffer = removeAlpha(frame);
+      } else {
+        frame = gifData;
+        if (newBuffer == null) {
+          newBuffer = removeAlpha(frame);
+        }
       }
-    }
 
-    try {
-      matrix
-        .brightness(current.brightness)
-        .drawBuffer(
-          newBuffer,
-          matrixOptions.cols * matrixOptions.chainLength,
-          matrixOptions.rows * matrixOptions.parallel
-        )
-        .sync();
-    } catch {
-      (err) => console.log(err);
-    }
-  }, 80);
+      try {
+        matrix
+          .brightness(current.brightness)
+          .drawBuffer(
+            newBuffer,
+            matrixOptions.cols * matrixOptions.chainLength,
+            matrixOptions.rows * matrixOptions.parallel
+          )
+          .sync();
+      } catch {
+        (err) => console.log(err);
+      }
+    }, 80);
+  }
 }
 
 export function stopMatrix() {

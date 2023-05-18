@@ -52,7 +52,7 @@ export function updateImageBrightness(
   brightness: number
 ) {
   const image: ImageItem = realm.objectForPrimaryKey(ImageItem, uuid);
-  if (image) {
+  if (image.isValid()) {
     realm.write(() => {
       image.brightness = brightness;
       console.log(
@@ -61,13 +61,14 @@ export function updateImageBrightness(
     });
     return image.toJSON();
   } else {
+    console.log(`could not update image ${uuid} to brightness ${brightness}`);
     return 1;
   }
 }
 
 export function updateImageDuration(uuid: Realm.BSON.UUID, duration: number) {
   const image: ImageItem = realm.objectForPrimaryKey(ImageItem, uuid);
-  if (image) {
+  if (image.isValid()) {
     realm.write(() => {
       image.duration = duration;
       console.log(
@@ -76,19 +77,21 @@ export function updateImageDuration(uuid: Realm.BSON.UUID, duration: number) {
     });
     return image.toJSON();
   } else {
+    console.log(`could not update image ${uuid} to duration ${duration}`);
     return 1;
   }
 }
 
 export function updateImageVisible(uuid: Realm.BSON.UUID, visible: boolean) {
   const image: ImageItem = realm.objectForPrimaryKey(ImageItem, uuid);
-  if (image) {
+  if (image.isValid()) {
     realm.write(() => {
       image.visible = visible;
       console.log(`updated image ${uuid} ${image.title} visible to ${visible}`);
     });
     return image.toJSON();
   } else {
+    console.log(`could not update image ${uuid} to visible ${visible}`);
     return 1;
   }
 }
