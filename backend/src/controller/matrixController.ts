@@ -26,7 +26,7 @@ export async function startMatrix() {
   let startTime = performance.now();
 
   interval = setInterval(async function () {
-    if ((performance.now() - startTime) * 1000 >= current.duration) {
+    if ((performance.now() - startTime) / 1000 >= current.duration) {
       resetVars();
       current = nextImage();
       if (current == null) {
