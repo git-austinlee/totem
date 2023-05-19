@@ -62,7 +62,7 @@ export default function MainScreen(props: any) {
   async function updateDuration(id: string, duration: number) {
     viewImage.duration = duration;
     setViewImage(viewImage);
-    const response = await updateImageOptions(id, duration);
+    const response = await updateImageDuration(id, duration);
     if (response) {
       for (let i = 0; i < data.length; ++i) {
         if (data[i]._id === id) {
@@ -79,7 +79,7 @@ export default function MainScreen(props: any) {
   async function updateBrightness(id: string, brightness: number) {
     viewImage.brightness = brightness;
     setViewImage(viewImage);
-    const response = await updateImageOptions(id, brightness);
+    const response = await updateImageBrightness(id, brightness);
     if (response) {
       for (let i = 0; i < data.length; ++i) {
         if (data[i]._id === id) {
