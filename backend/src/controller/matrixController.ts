@@ -1,5 +1,6 @@
 import { Gif, GifFrame, GifUtil } from "gifwrap";
 import gm from "gm";
+import path from "path";
 
 import { matrix, realm } from "../index.js";
 import { ImageItem } from "../models/ImageSchema.js";
@@ -86,10 +87,16 @@ export function isPlaying() {
 }
 
 function loadImageAndScale(path: string) {
+  const exts = [".jpg", ".jpeg", ".png"]
   return new Promise((resolve, reject) => {
     gm(path)
       .resize(128, 96, "!")
       .toBuffer((err, buffer) => {
+        let ext = path.extname();
+        exts.forEach(element => {
+          if (element === ext) resolve(buffer);
+        });
+
         GifUtil.read(buffer)
           .then(function (imageGif) {
             console.log(`in loadImageAndScale then ${path}`);
@@ -108,22 +115,29 @@ function removeAlpha(frame: GifFrame | Buffer) {
   let width: number;
   let newBuffer: Uint8Array;
   let buf: Buffer;
+  let interval: number;
   if (frame instanceof GifFrame) {
     height = frame.bitmap.height;
     width = frame.bitmap.width;
     newBuffer = new Uint8Array(width * 2 * height * 3);
     buf = frame.bitmap.data;
+    interval = 4
   } else {
     height = matrixOptions.rows * 3;
     width = matrixOptions.cols * 2;
     newBuffer = new Uint8Array(width * 2 * height * 3);
     buf = frame;
+    if (frame.length <= height * width * 3) {
+      interval = 3;
+    } else {
+      interval = 4;
+    }
   }
 
   let x = 0;
   let y = 0;
   let row = [];
-  for (let bi = 0; bi < buf.length; bi += 4) {
+  for (let bi = 0; bi < buf.length; bi += interval) {
     const r = buf[bi];
     const g = buf[bi + 1];
     const b = buf[bi + 2];
