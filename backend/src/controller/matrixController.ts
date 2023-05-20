@@ -86,24 +86,24 @@ export function isPlaying() {
   return running;
 }
 
-function loadImageAndScale(path: string) {
+function loadImageAndScale(p: string) {
   const exts = [".jpg", ".jpeg", ".png"]
   return new Promise((resolve, reject) => {
     gm(path)
       .resize(128, 96, "!")
       .toBuffer((err, buffer) => {
-        let ext = path.extname();
+        let ext = path.extname(p);
         exts.forEach(element => {
           if (element === ext) resolve(buffer);
         });
 
         GifUtil.read(buffer)
           .then(function (imageGif) {
-            console.log(`in loadImageAndScale then ${path}`);
+            console.log(`in loadImageAndScale then ${p}`);
             resolve(imageGif);
           })
           .catch((err) => {
-            console.log(`in loadImageAndScale catch ${path}`);
+            console.log(`in loadImageAndScale catch ${p}`);
             resolve(buffer);
           });
       });
